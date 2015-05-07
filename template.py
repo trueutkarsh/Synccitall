@@ -1,38 +1,32 @@
 import httplib2
 import pprint
-import time
 #libraries for gdrive file upload
 from apiclient.discovery import build
 from apiclient.http import MediaFileUpload
 from oauth2client.client import OAuth2WebServerFlow
 #libraries for web browsing
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 #libraries for onedrive file upload
 
 #libraries for dropbox file upload
 
-class file:#bas class file
-	authorized=False#whether authorization has taken place or not
+class file:
 	def __init__(self,location):
-		self.address=location#address of file on pc
-		
+		self.address=location
+		self.authorized=False
 	def upload(self):
 		pass
 	@staticmethod
-	def authorize():
+	def authorize:
 		pass
 
 class gdrivefile(file):
 	drive_service=None
 	def upload(self):
-		if gdrivefile.authorized==False :
+		if self.authorized==False :
 			gdrivefile.authorize()
-			gdrivefile.authorized=True
+			self.authorized=True
 
 		FILENAME = self.address
 		media_body = MediaFileUpload(FILENAME, mimetype='', resumable=True)
@@ -46,7 +40,7 @@ class gdrivefile(file):
 		#pprint.pprint(file)
 
 	@staticmethod
-	def authorize():
+	def authorize:
 		CLIENT_ID = '268285193546-qpu3mbasinue8ofpiah50fu928lcf24b.apps.googleusercontent.com'
 		CLIENT_SECRET = '0iyrUyCs-MhAIyOMeYKeeQO-'
 
@@ -60,18 +54,9 @@ class gdrivefile(file):
                            redirect_uri=REDIRECT_URI)
 		authorize_url = flow.step1_get_authorize_url()
 		#print 'Go to the following link in your browser: ' + authorize_url
-		driver=webdriver.Firefox()#depends on your browser
+		driver=webdriver.Chrome()#depends on your browser
 		driver.get(authorize_url)
-		#login=driver.find_element_by_name("signIn")
-		#login.send_keys(Keys.RETURN)
-		accept= WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "submit_approve_access")))
-		accept.send_keys(Keys.RETURN)
-    	#accept.click()
-		a=driver.find_element_by_id("code")
-
-		code=a.get_attribute('value')
-		driver.quit()
-		#code = raw_input('Enter verification code: ').strip()#change here
+		code = raw_input('Enter verification code: ').strip()
 		credentials = flow.step2_exchange(code)
 
 		# Create an httplib2.Http object and authorize it with our credentials
@@ -86,8 +71,7 @@ class odrivefile(file):
 		pass
 
 	@staticmethod
-	def authorize():
-		pass
+	def authorize:
 		#code for authorization	
 
 class drobboxfile(file):
@@ -96,11 +80,5 @@ class drobboxfile(file):
 		pass
 
 	@staticmethod
-	def authorize():
-		pass
-		#code for authorization	
-add=raw_input("enter address of a file")
-f1=gdrivefile(add)
-f1.upload()
-#f1.upload()
-
+	def authorize:
+		#code for authorization				
