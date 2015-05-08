@@ -37,6 +37,7 @@ class file:#bas class file
 class gdrivefile(file):
 	drive_service=None
 	filelist=[]
+	currentquota=None
 
 	def upload(self):
 		if gdrivefile.authorized==False :
@@ -144,18 +145,26 @@ class gdrivefile(file):
 				if resp.status==200:
 					#print('Status',resp)
 					downloadedfile.write(content)
-					src=r"C:\\Users\\windows\\Downloads\\" +  file2download.get('title')
-					dest=os.getcwd()+r"\\" file2download.get('title')
+					#src=r"C:\\Users\\windows\\Downloads\\" +  file2download.get('title')
+					#dest=os.getcwd()+r"\\" file2download.get('title')
 					#shutil.move(dest,src)	
 
 					downloadedfile.close()
-					os.rename(dest,src)
+					#os.rename(dest,src)
 					
 				else :
 					print("An error occured in downloading")
 			else:
 				print("No such file exists ")
-				 			
+
+	@staticmethod
+	def getquota():
+		if gdrivefile.authorized==False :
+			gdrivefile.authorize()
+			gdrivefile.authorized=True
+		about=gdrivefile.drive_service.about().get().execute()	
+		gdrivefile.currentquota=[about['quotaBytesTotal'],about['quotaBytesUsed']]
+				
 				
 
   			
@@ -174,7 +183,6 @@ class gdrivefile(file):
 
 		
 			  
-
 
 class odrivefile(file):
 	def upload(self):
@@ -203,5 +211,9 @@ f1.upload()
 #f1.upload()
 '''
 
-gdrivefile.download()
+#gdrivefile.download()
+gdrivefile.getquota()
+a=gdrivefile.currentquota
+for data in a:
+	print(data)+' bytes'
 
