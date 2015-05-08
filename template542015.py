@@ -1,10 +1,13 @@
 import httplib2
 import pprint
 import time
+#import urllib2
 #libraries for gdrive file upload
 from apiclient.discovery import build
 from apiclient.http import MediaFileUpload
 from oauth2client.client import OAuth2WebServerFlow
+from apiclient import errors
+from apiclient import http
 #libraries for web browsing
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -18,6 +21,8 @@ from selenium.webdriver.common.keys import Keys
 
 class file:#bas class file
 	authorized=False#whether authorization has taken place or not
+	listupdated=False#whether file list is updated or not
+	downloadfilepath=None
 	def __init__(self,location):
 		self.address=location#address of file on pc
 		
@@ -29,6 +34,8 @@ class file:#bas class file
 
 class gdrivefile(file):
 	drive_service=None
+	filelist=[]
+
 	def upload(self):
 		if gdrivefile.authorized==False :
 			gdrivefile.authorize()
@@ -41,8 +48,12 @@ class gdrivefile(file):
 		  'description': '',
 		  'mimeType': ''
 		}
+		try:
+			file = gdrivefile.drive_service.files().insert(body=body, media_body=media_body).execute()
+			#iINSERT CODE TO UPDATE FILE LIST
+		except errors.HttpError,error :
+			print("error in uploading file")	
 
-		file = gdrivefile.drive_service.files().insert(body=body, media_body=media_body).execute()
 		#pprint.pprint(file)
 
 	@staticmethod
@@ -79,6 +90,84 @@ class gdrivefile(file):
 		http = credentials.authorize(http)
 
 		gdrivefile.drive_service = build('drive', 'v2', http=http)
+	@staticmethod
+	def updatefilelist():#information about files on your drive
+		if gdrivefile.authorized==False :
+			gdrivefile.authorize()
+			gdrivefile.authorized=True
+		page_token = None
+		while True:
+			try:
+				param={}
+				if page_token:
+					param['pageToken']=page_token
+				dfiles=gdrivefile.drive_service.files().list(**param).execute()
+				gdrivefile.filelist.extend(dfiles['items'])
+				page_token=dfiles.get('nextPageToken')
+				gdrivefile.listupdated=True
+				if not page_token:
+					break
+			except errors.HttpError:
+				print("error in udating list")
+				break
+	@staticmethod
+	def getfile():
+		if gdrivefile.listupdated==False:
+			gdrivefile.updatefilelist()
+		ref=[]	
+		sample=raw_input('enter the file name ').strip()
+		for gfile in gdrivefile.filelist:
+			if sample in gfile['title']:
+				if sample==gfile['title']:
+					return gfile
+				ref.append(gfile['title'])
+		print("No match found.Following are the related files")
+		for name in ref:
+			print(name)	
+		return None				
+
+
+
+	@staticmethod					
+	def download():
+		file2download=gdrivefile.getfile()
+		if file2download==None:
+			return
+		else:
+			download_url=file2download.get('downloadUrl')
+			driver=webdriver.Firefox()
+			driver.get(download_url)
+
+			''''
+			if download_url:
+				resp ,content=gdrivefile.drive_service._http.request(download_url)
+				if resp.status==200:
+					print('Status',resp)
+					return content
+				else :
+					print("An error occured in downloading")
+			else:
+				print("No such file exists ")
+				return None			
+				'''
+
+  			
+
+
+			 
+
+
+				
+
+		
+
+					
+
+
+
+		
+			  
+
 
 class odrivefile(file):
 	def upload(self):
@@ -99,8 +188,12 @@ class drobboxfile(file):
 	def authorize():
 		pass
 		#code for authorization	
+#testing the new update
+'''	
 add=raw_input("enter address of a file")
 f1=gdrivefile(add)
 f1.upload()
 #f1.upload()
-
+'''
+a=gdrivefile.download()
+print(a)
