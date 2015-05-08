@@ -1,6 +1,8 @@
 import httplib2
 import pprint
 import time
+import os
+import shutil
 #import urllib2
 #libraries for gdrive file upload
 from apiclient.discovery import build
@@ -134,22 +136,27 @@ class gdrivefile(file):
 		if file2download==None:
 			return
 		else:
-			download_url=file2download.get('downloadUrl')
-			driver=webdriver.Firefox()
-			driver.get(download_url)
+			downloadedfile=open(file2download.get('title'),"wb")
 
-			''''
+			download_url=file2download.get('downloadUrl')
 			if download_url:
 				resp ,content=gdrivefile.drive_service._http.request(download_url)
 				if resp.status==200:
-					print('Status',resp)
-					return content
+					#print('Status',resp)
+					downloadedfile.write(content)
+					src=r"C:\\Users\\windows\\Downloads\\" +  file2download.get('title')
+					dest=os.getcwd()+r"\\" file2download.get('title')
+					#shutil.move(dest,src)	
+
+					downloadedfile.close()
+					os.rename(dest,src)
+					
 				else :
 					print("An error occured in downloading")
 			else:
 				print("No such file exists ")
-				return None			
-				'''
+				 			
+				
 
   			
 
@@ -195,5 +202,6 @@ f1=gdrivefile(add)
 f1.upload()
 #f1.upload()
 '''
-a=gdrivefile.download()
-print(a)
+
+gdrivefile.download()
+
